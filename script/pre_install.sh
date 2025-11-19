@@ -1,19 +1,44 @@
 #!/bin/bash
 
-read -p "Do you want to create folders in /opt? (yes/no): " create_folders
-if [[ "$create_folders" =~ ^(y|yes)$ ]]; then
+read -p "Do you want to create folders in /opt? (yes/no): " create_BASE_folders
+if [[ "$create_BASE_folders" =~ ^(y|yes)$ ]]; then
   base_dir="/opt"
   folders=(
-	"homeassistant"
-    "zigbee2mqtt"
-    "esphome"
-    "musicassistant"
-    "mysql"
-    "emqx"
-    "alloy"
+    "homeassistant"
     "portainer"
   )
-  current_user=$(whoami)
+
+  read -p "Will you be using external database? (yes/no): " create_DB_folders
+  if [[ "$create_DB_folders" =~ ^(y|yes)$ ]]; then
+     folders+=("mysql")
+  fi
+
+  read -p "Will you be using ESPHome? (yes/no): " create_ESP_folders
+  if [[ "$create_ESP_folders" =~ ^(y|yes)$ ]]; then
+     folders+=("esphome")
+  fi
+
+  read -p "Will you be using Zigbee2mqtt? (yes/no): " create_z2m_folders
+  if [[ "$create_z2m_folders" =~ ^(y|yes)$ ]]; then
+     folders+=("zigbee2mqtt" "emqx")
+  fi
+
+  read -p "Do you want to collect metrics from applications? (yes/no): " create_METRICS_folders
+  if [[ "$create_METRICS_folders" =~ ^(y|yes)$ ]]; then
+    folders+=("alloy" "grafana" "prometheus")
+  fi
+
+  read -p "Do you want to collect logs from applications in one place? (yes/no): " create_LOGS_folders
+  if [[ "$create_LOGS_folders" =~ ^(y|yes)$ ]]; then
+    folders+=("loki")
+  fi
+
+  read -p "Will you be using MusicAssistant? (yes/no): " create_MA_folders
+  if [[ "$create_MA_folders" =~ ^(y|yes)$ ]]; then
+     folders+=("musicassistant")
+  fi
+
+  current_user=$1
   for folder in "${folders[@]}"; do
     full_path="$base_dir/$folder"
     if [ -d "$full_path" ]; then
